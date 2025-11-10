@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EcoMind Dashboard</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    :root {
+      --primary: #2ecc71;
+      --primary-dark: #27ae60;
+      --secondary: #3498db;
+      --dark: #2c3e50;
+      --light: #ecf0f1;
+      --gray: #95a5a6;
+      --danger: #e74c3c;
+      --warning: #f39c12;
+      --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      --transition: all 0.3s ease;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      color: var(--dark);
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+      padding: 20px;
+      background: white;
+      border-radius: 15px;
+      box-shadow: var(--shadow);
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .logo-icon {
+      font-size: 2.5rem;
+      color: var(--primary);
+    }
+
+    h1 {
+      font-size: 1.8rem;
+      font-weight: 600;
+    }
+
+    .subtitle {
+      color: var(--gray);
+      font-size: 1rem;
+    }
+
+    .back-btn {
+      background: var(--secondary);
+      color: white;
+      text-decoration: none;
+      padding: 12px 25px;
+      border-radius: 50px;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: var(--transition);
+      box-shadow: 0 4px 10px rgba(52, 152, 219, 0.3);
+    }
+
+    .back-btn:hover {
+      background: #2980b9;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 15px rgba(52, 152, 219, 0.4);
+    }
+
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 25px;
+      margin-bottom: 30px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 15px;
+      padding: 25px;
+      box-shadow: var(--shadow);
+      transition: var(--transition);
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+    }
+
+    .stats-card {
+      text-align: center;
+    }
+
+    .card-icon {
+      font-size: 2.5rem;
+      margin-bottom: 15px;
+      display: inline-block;
+      padding: 15px;
+      border-radius: 50%;
+    }
+
+    .organic-icon {
+      background: rgba(46, 204, 113, 0.2);
+      color: var(--primary);
+    }
+
+    .recyclable-icon {
+      background: rgba(52, 152, 219, 0.2);
+      color: var(--secondary);
+    }
+
+    .unknown-icon {
+      background: rgba(243, 156, 18, 0.2);
+      color: var(--warning);
+    }
+
+    .card-title {
+      font-size: 1rem;
+      color: var(--gray);
+      margin-bottom: 10px;
+    }
+
+    .card-value {
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+
+    .card-change {
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+    }
+
+    .positive {
+      color: var(--primary);
+    }
+
+    .negative {
+      color: var(--danger);
+    }
+
+    .chart-container {
+      grid-column: span 2;
+      height: 300px;
+    }
+
+    .insights-container {
+      margin-top: 30px;
+    }
+
+    .insights-title {
+      font-size: 1.5rem;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .insights-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+    }
+
+    .insight-card {
+      background: white;
+      border-radius: 15px;
+      padding: 20px;
+      box-shadow: var(--shadow);
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .insight-icon {
+      font-size: 1.8rem;
+      padding: 12px;
+      border-radius: 50%;
+    }
+
+    .insight-text h3 {
+      font-size: 1rem;
+      margin-bottom: 5px;
+    }
+
+    .insight-text p {
+      font-size: 0.9rem;
+      color: var(--gray);
+    }
+
+    .recent-activity {
+      margin-top: 30px;
+    }
+
+    .activity-title {
+      font-size: 1.5rem;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .activity-list {
+      background: white;
+      border-radius: 15px;
+      padding: 25px;
+      box-shadow: var(--shadow);
+    }
+
+    .activity-item {
+      display: flex;
+      align-items: center;
+      padding: 15px 0;
+      border-bottom: 1px solid #eee;
+    }
+
+    .activity-item:last-child {
+      border-bottom: none;
+    }
+
+    .activity-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 15px;
+      font-size: 1.2rem;
+    }
+
+    .activity-details {
+      flex: 1;
+    }
+
+    .activity-details h4 {
+      font-size: 1rem;
+      margin-bottom: 5px;
+    }
+
+    .activity-details p {
+      font-size: 0.85rem;
+      color: var(--gray);
+    }
+
+    .activity-time {
+      font-size: 0.8rem;
+      color: var(--gray);
+    }
+
+    .footer {
+      text-align: center;
+      margin-top: 40px;
+      padding: 20px;
+      color: var(--gray);
+      font-size: 0.9rem;
+    }
+
+    @media (max-width: 768px) {
+      .dashboard-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .chart-container {
+        grid-column: span 1;
+        height: 250px;
+      }
+
+      header {
+        flex-direction: column;
+        gap: 15px;
+        text-align: center;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="logo">
+        <i class="fas fa-seedling logo-icon"></i>
+        <div>
+          <h1>EcoMind Dashboard</h1>
+          <p class="subtitle">Track your waste classification activities</p>
+        </div>
+      </div>
+      <a href="/" class="back-btn">
+        <i class="fas fa-arrow-left"></i> Back to Classifier
+      </a>
+    </header>
+
+    <div class="dashboard-grid">
+      <div class="card stats-card">
+        <div class="card-icon organic-icon">
+          <i class="fas fa-leaf"></i>
+        </div>
+        <div class="card-title">Organic Waste</div>
+        <div class="card-value">{{ counts.organic }}</div>
+        <div class="card-change positive">
+          <i class="fas fa-arrow-up"></i> 12% from last week
+        </div>
+      </div>
+
+      <div class="card stats-card">
+        <div class="card-icon recyclable-icon">
+          <i class="fas fa-recycle"></i>
+        </div>
+        <div class="card-title">Recyclable Waste</div>
+        <div class="card-value">{{ counts.recyclable }}</div>
+        <div class="card-change positive">
+          <i class="fas fa-arrow-up"></i> 8% from last week
+        </div>
+      </div>
+
+      <div class="card stats-card">
+        <div class="card-icon unknown-icon">
+          <i class="fas fa-question-circle"></i>
+        </div>
+        <div class="card-title">Unknown/Other</div>
+        <div class="card-value">{{ counts.unknown }}</div>
+        <div class="card-change negative">
+          <i class="fas fa-arrow-down"></i> 3% from last week
+        </div>
+      </div>
+
+      <div class="card chart-container">
+        <canvas id="wasteChart"></canvas>
+      </div>
+    </div>
+
+    <div class="insights-container">
+      <h2 class="insights-title">
+        <i class="fas fa-lightbulb"></i> Eco Insights
+      </h2>
+      <div class="insights-grid">
+        <div class="insight-card">
+          <div class="insight-icon" style="background: rgba(46, 204, 113, 0.2); color: var(--primary);">
+            <i class="fas fa-tree"></i>
+          </div>
+          <div class="insight-text">
+            <h3>Reduce Landfill Impact</h3>
+            <p>Your organic waste could create nutrient-rich compost instead of methane in landfills.</p>
+          </div>
+        </div>
+        <div class="insight-card">
+          <div class="insight-icon" style="background: rgba(52, 152, 219, 0.2); color: var(--secondary);">
+            <i class="fas fa-industry"></i>
+          </div>
+          <div class="insight-text">
+            <h3>Save Energy</h3>
+            <p>Recycling aluminum saves 95% of the energy needed to make new aluminum from raw materials.</p>
+          </div>
+        </div>
+        <div class="insight-card">
+          <div class="insight-icon" style="background: rgba(243, 156, 18, 0.2); color: var(--warning);">
+            <i class="fas fa-tint"></i>
+          </div>
+          <div class="insight-text">
+            <h3>Conserve Resources</h3>
+            <p>Recycling one ton of paper saves 17 trees and 7,000 gallons of water.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="recent-activity">
+      <h2 class="activity-title">
+        <i class="fas fa-history"></i> Recent Activity
+      </h2>
+      <div class="activity-list">
+        <div class="activity-item">
+          <div class="activity-icon" style="background: rgba(46, 204, 113, 0.2); color: var(--primary);">
+            <i class="fas fa-leaf"></i>
+          </div>
+          <div class="activity-details">
+            <h4>Organic Waste Classified</h4>
+            <p>Banana peel image classified as organic</p>
+          </div>
+          <div class="activity-time">2 hours ago</div>
+        </div>
+        <div class="activity-item">
+          <div class="activity-icon" style="background: rgba(52, 152, 219, 0.2); color: var(--secondary);">
+            <i class="fas fa-recycle"></i>
+          </div>
+          <div class="activity-details">
+            <h4>Recyclable Waste Classified</h4>
+            <p>Plastic bottle image classified as recyclable</p>
+          </div>
+          <div class="activity-time">5 hours ago</div>
+        </div>
+        <div class="activity-item">
+          <div class="activity-icon" style="background: rgba(243, 156, 18, 0.2); color: var(--warning);">
+            <i class="fas fa-question-circle"></i>
+          </div>
+          <div class="activity-details">
+            <h4>Uncertain Classification</h4>
+            <p>Image of composite material needs review</p>
+          </div>
+          <div class="activity-time">Yesterday</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer">
+      <p>EcoMind &copy; 2023 | Helping create a sustainable future through AI</p>
+    </div>
+  </div>
+
+  <script>
+    // Initialize the waste classification chart
+    document.addEventListener('DOMContentLoaded', function() {
+      const ctx = document.getElementById('wasteChart').getContext('2d');
+
+      // Sample data - in a real app, this would come from your backend
+      const wasteData = {
+        organic: {{ counts.organic }},
+        recyclable: {{ counts.recyclable }},
+        unknown: {{ counts.unknown }}
+      };
+
+      const chart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: ['Organic', 'Recyclable', 'Unknown'],
+          datasets: [{
+            data: [wasteData.organic, wasteData.recyclable, wasteData.unknown],
+            backgroundColor: [
+              '#2ecc71', // Organic - green
+              '#3498db', // Recyclable - blue
+              '#f39c12'  // Unknown - orange
+            ],
+            borderWidth: 2,
+            borderColor: '#fff'
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'bottom',
+              labels: {
+                padding: 20,
+                usePointStyle: true,
+                font: {
+                  size: 13,
+                  family: "'Poppins', sans-serif"
+                }
+              }
+            },
+            tooltip: {
+              backgroundColor: 'rgba(44, 62, 80, 0.9)',
+              titleFont: {
+                family: "'Poppins', sans-serif"
+              },
+              bodyFont: {
+                family: "'Poppins', sans-serif"
+              }
+            }
+          },
+          cutout: '65%'
+        }
+      });
+    });
+  </script>
+</body>
+</html>

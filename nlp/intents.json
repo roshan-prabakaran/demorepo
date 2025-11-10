@@ -1,0 +1,19 @@
+{
+  "intents": [
+    {
+      "tag": "greeting",
+      "patterns": ["hi", "hello", "hey", "good morning"],
+      "responses": ["Hello! I can help classify waste and provide recycling tips."]
+    },
+    {
+      "tag": "organic",
+      "patterns": ["what is organic waste", "organic waste examples", "food waste"],
+      "responses": ["Organic waste includes food scraps, garden waste, and paper. Composting is recommended."]
+    },
+    {
+      "tag": "recycle",
+      "patterns": ["what can I recycle", "recyclable items", "how to recycle"],
+      "responses": ["Common recyclables: plastic bottles, tin cans, paper, cardboard. Rinse before recycling."]
+    }
+  ]
+}

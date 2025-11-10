@@ -1,0 +1,9 @@
+body { font-family: Arial, sans-serif; background:#f2f7f3; color:#153b2a; }
+.container { max-width:720px; margin:30px auto; text-align:center; padding:20px; }
+input[type=file]{ margin:12px 0; }
+button { background:#2e7d32; color:white; border:none; padding:10px 16px; border-radius:6px; cursor:pointer; }
+.result { margin-top:18px; background:#fff; padding:12px; border-radius:8px; box-shadow:0 2px 6px rgba(0,0,0,0.06); display:inline-block; }
+.preview { max-width:320px; border-radius:6px; border:1px solid #e0e0e0; }
+.label { color:#1b5e20; font-weight:700; }
+.bar { width:320px; background:#e6f4ea; border-radius:8px; margin:8px auto; overflow:hidden; }
+.bar-fill { background:#43a047; color:white; padding:6px 8px; text-align:right; }

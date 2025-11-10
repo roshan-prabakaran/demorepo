@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EcoMind Chatbot</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #2ecc71;
+      --primary-dark: #27ae60;
+      --secondary: #3498db;
+      --dark: #2c3e50;
+      --light: #ecf0f1;
+      --gray: #95a5a6;
+      --danger: #e74c3c;
+      --warning: #f39c12;
+      --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      --transition: all 0.3s ease;
+      --user-msg: #e3f2fd;
+      --bot-msg: #f5f5f5;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      color: var(--dark);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 800px;
+      background: white;
+      border-radius: 20px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      height: 90vh;
+      max-height: 700px;
+    }
+
+    .chat-header {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+      color: white;
+      padding: 20px 25px;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .chat-icon {
+      font-size: 1.8rem;
+    }
+
+    .chat-title {
+      flex: 1;
+    }
+
+    .chat-title h1 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin-bottom: 5px;
+    }
+
+    .chat-title p {
+      font-size: 0.9rem;
+      opacity: 0.9;
+    }
+
+    .status {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.85rem;
+    }
+
+    .status-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #2ecc71;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0% { opacity: 1; }
+      50% { opacity: 0.5; }
+      100% { opacity: 1; }
+    }
+
+    .chat-container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .chat-log {
+      flex: 1;
+      padding: 20px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .message {
+      max-width: 80%;
+      padding: 12px 18px;
+      border-radius: 18px;
+      line-height: 1.4;
+      position: relative;
+      animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .user-message {
+      align-self: flex-end;
+      background: var(--user-msg);
+      border-bottom-right-radius: 5px;
+      color: var(--dark);
+    }
+
+    .bot-message {
+      align-self: flex-start;
+      background: var(--bot-msg);
+      border-bottom-left-radius: 5px;
+      color: var(--dark);
+    }
+
+    .message-time {
+      font-size: 0.7rem;
+      color: var(--gray);
+      margin-top: 5px;
+      text-align: right;
+    }
+
+    .bot-message .message-time {
+      text-align: left;
+    }
+
+    .suggestions {
+      padding: 15px 20px;
+      border-top: 1px solid #eee;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .suggestion-title {
+      width: 100%;
+      font-size: 0.9rem;
+      color: var(--gray);
+      margin-bottom: 8px;
+    }
+
+    .suggestion-chip {
+      background: white;
+      border: 1px solid #e0e0e0;
+      border-radius: 20px;
+      padding: 8px 15px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .suggestion-chip:hover {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+      transform: translateY(-2px);
+    }
+
+    .chat-input-container {
+      padding: 20px;
+      border-top: 1px solid #eee;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .chat-input {
+      flex: 1;
+      padding: 12px 18px;
+      border: 1px solid #e0e0e0;
+      border-radius: 50px;
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.95rem;
+      outline: none;
+      transition: var(--transition);
+    }
+
+    .chat-input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 2px rgba(46, 204, 113, 0.2);
+    }
+
+    .send-btn {
+      background: var(--primary);
+      color: white;
+      border: none;
+      width: 45px;
+      height: 45px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: var(--transition);
+      box-shadow: 0 4px 10px rgba(46, 204, 113, 0.3);
+    }
+
+    .send-btn:hover {
+      background: var(--primary-dark);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 15px rgba(46, 204, 113, 0.4);
+    }
+
+    .send-btn:active {
+      transform: translateY(0);
+    }
+
+    .typing-indicator {
+      display: none;
+      align-self: flex-start;
+      background: var(--bot-msg);
+      padding: 12px 18px;
+      border-radius: 18px;
+      border-bottom-left-radius: 5px;
+      margin-bottom: 10px;
+    }
+
+    .typing-dots {
+      display: flex;
+      gap: 4px;
+    }
+
+    .typing-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--gray);
+      animation: typing 1.4s infinite ease-in-out;
+    }
+
+    .typing-dot:nth-child(1) { animation-delay: -0.32s; }
+    .typing-dot:nth-child(2) { animation-delay: -0.16s; }
+
+    @keyframes typing {
+      0%, 80%, 100% { transform: scale(0.8); opacity: 0.5; }
+      40% { transform: scale(1); opacity: 1; }
+    }
+
+    .welcome-message {
+      text-align: center;
+      padding: 20px;
+      color: var(--gray);
+    }
+
+    .welcome-icon {
+      font-size: 3rem;
+      margin-bottom: 15px;
+      color: var(--primary);
+    }
+
+    .empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      color: var(--gray);
+      text-align: center;
+      padding: 20px;
+    }
+
+    .empty-icon {
+      font-size: 4rem;
+      margin-bottom: 15px;
+      opacity: 0.7;
+    }
+
+    .quick-actions {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin-top: 20px;
+      width: 100%;
+      max-width: 400px;
+    }
+
+    .quick-action {
+      background: white;
+      border: 1px solid #e0e0e0;
+      border-radius: 10px;
+      padding: 12px;
+      text-align: center;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .quick-action:hover {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+      transform: translateY(-2px);
+    }
+
+    @media (max-width: 600px) {
+      .container {
+        height: 95vh;
+        border-radius: 10px;
+      }
+
+      .chat-header {
+        padding: 15px;
+      }
+
+      .message {
+        max-width: 90%;
+      }
+
+      .quick-actions {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="chat-header">
+      <i class="fas fa-robot chat-icon"></i>
+      <div class="chat-title">
+        <h1>EcoMind Chatbot</h1>
+        <p>Ask me about recycling, composting, and waste management</p>
+      </div>
+      <div class="status">
+        <div class="status-dot"></div>
+        <span>Online</span>
+      </div>
+    </div>
+
+    <div class="chat-container">
+      <div class="chat-log" id="chatLog">
+        <div class="empty-state" id="emptyState">
+          <i class="fas fa-robot empty-icon"></i>
+          <h3>Welcome to EcoMind Chatbot!</h3>
+          <p>I can help you with questions about waste classification, recycling tips, and sustainable practices.</p>
+          <div class="quick-actions">
+            <div class="quick-action" onclick="askQuestion('What can be recycled?')">
+              <i class="fas fa-recycle"></i>
+              <p>Recycling Guide</p>
+            </div>
+            <div class="quick-action" onclick="askQuestion('What is compostable?')">
+              <i class="fas fa-leaf"></i>
+              <p>Composting Tips</p>
+            </div>
+            <div class="quick-action" onclick="askQuestion('How to reduce waste?')">
+              <i class="fas fa-seedling"></i>
+              <p>Reduce Waste</p>
+            </div>
+            <div class="quick-action" onclick="askQuestion('What goes in landfill?')">
+              <i class="fas fa-trash"></i>
+              <p>Landfill Items</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="typing-indicator" id="typingIndicator">
+        <div class="typing-dots">
+          <div class="typing-dot"></div>
+          <div class="typing-dot"></div>
+          <div class="typing-dot"></div>
+        </div>
+      </div>
+
+      <div class="suggestions">
+        <div class="suggestion-title">Quick questions:</div>
+        <div class="suggestion-chip" onclick="askQuestion('Can I recycle pizza boxes?')">Pizza boxes</div>
+        <div class="suggestion-chip" onclick="askQuestion('How to compost at home?')">Home composting</div>
+        <div class="suggestion-chip" onclick="askQuestion('Are plastic bags recyclable?')">Plastic bags</div>
+        <div class="suggestion-chip" onclick="askQuestion('What is e-waste?')">E-waste</div>
+      </div>
+
+      <div class="chat-input-container">
+        <input type="text" class="chat-input" id="msg" placeholder="Ask about recycling or organic waste..." onkeypress="handleKeyPress(event)">
+        <button class="send-btn" onclick="sendMessage()">
+          <i class="fas fa-paper-plane"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const chatLog = document.getElementById('chatLog');
+    const msgInput = document.getElementById('msg');
+    const typingIndicator = document.getElementById('typingIndicator');
+    const emptyState = document.getElementById('emptyState');
+
+    function handleKeyPress(event) {
+      if (event.key === 'Enter') {
+        sendMessage();
+      }
+    }
+
+    function askQuestion(question) {
+      msgInput.value = question;
+      sendMessage();
+    }
+
+    async function sendMessage() {
+      const message = msgInput.value.trim();
+
+      if (!message) return;
+
+      // Hide empty state after first message
+      if (emptyState) {
+        emptyState.style.display = 'none';
+      }
+
+      // Add user message to chat
+      addMessage(message, 'user');
+      msgInput.value = '';
+
+      // Show typing indicator
+      typingIndicator.style.display = 'block';
+      chatLog.scrollTop = chatLog.scrollHeight;
+
+      try {
+        // Send message to backend
+        const response = await fetch('/api/chat', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ text: message })
+        });
+
+        const data = await response.json();
+
+        // Hide typing indicator
+        typingIndicator.style.display = 'none';
+
+        // Add bot response to chat
+        addMessage(data.reply, 'bot');
+      } catch (error) {
+        // Hide typing indicator
+        typingIndicator.style.display = 'none';
+
+        // Add error message
+        addMessage("Sorry, I'm having trouble connecting right now. Please try again later.", 'bot');
+      }
+    }
+
+    function addMessage(text, sender) {
+      const messageElement = document.createElement('div');
+      messageElement.classList.add('message');
+      messageElement.classList.add(sender === 'user' ? 'user-message' : 'bot-message');
+
+      const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+      messageElement.innerHTML = `
+        <div>${text}</div>
+        <div class="message-time">${time}</div>
+      `;
+
+      chatLog.appendChild(messageElement);
+
+      // Scroll to bottom
+      chatLog.scrollTop = chatLog.scrollHeight;
+    }
+
+    // Add welcome message from bot when page loads
+    document.addEventListener('DOMContentLoaded', function() {
+      setTimeout(() => {
+        if (emptyState && emptyState.style.display !== 'none') {
+          addMessage("Hi! I'm EcoMind, your waste management assistant. I can help you with recycling guidelines, composting tips, and sustainable practices. What would you like to know?", 'bot');
+          emptyState.style.display = 'none';
+        }
+      }, 1000);
+    });
+  </script>
+</body>
+</html>
