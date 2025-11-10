@@ -1,3 +1,6 @@
+pip>=25.1.1
+setuptools>=70.0.0
+wheel>=0.44.0
 flask==2.3.3
 flask_sqlalchemy==3.1.1
 python-dotenv==1.0.0
