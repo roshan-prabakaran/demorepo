@@ -581,4 +581,8 @@ if __name__ == '__main__':
             print("   2. Create an API key")
             print("   3. Add to .env: GEMINI_API_KEY=your_key_here")
 
-    app.run(debug=True, port=5000)
+import os
+
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port)
