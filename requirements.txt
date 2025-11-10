@@ -16,7 +16,7 @@ pillow==11.0.0
 opencv-python==4.8.1.78
 
 # Machine Learning & AI
-tensorflow==2.16.1
+tensorflow
 numpy==1.26.4
 pandas==2.2.2
 joblib==1.4.2
